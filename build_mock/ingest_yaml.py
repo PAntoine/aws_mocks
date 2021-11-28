@@ -13,6 +13,7 @@
 
 import os
 import yaml
+import shutil
 from .constants import *
 from typing import Dict
 from .sam_function import SAMFunction
@@ -38,7 +39,7 @@ class IngestSAMYAML:
 
         failed = False
 
-        with open('deploy.yaml', 'r') as file:
+        with open(sam_template_file, 'r') as file:
             configuration = yaml.safe_load(file)
 
         for item in configuration['Resources']:
@@ -148,3 +149,15 @@ class IngestSAMYAML:
         for item in self.functions:
             os.mkdir(os.path.join(path, self.functions[item].name))
             self.functions[item].generateDockerfile(os.path.join(path, self.functions[item].name, "Dockerfile"))
+
+    def copyFunctions(self, source:str, destination:str) -> bool:
+
+        for item in self.functions:
+            source_path = os.path.join(source, self.functions[item].directory)
+            destination_path = os.path.join(destination, self.functions[item].name)
+
+            shutil.copytree(source_path, destination)
+
+        return True
+
+

@@ -21,7 +21,7 @@ if __name__ == '__main__':
 	failed = False
 	output = None
 	clear = False
-	sam_file = None
+	sam_dir = None
 
 	while index < len(sys.argv):
 		if sys.argv[index][0:2] == "-o":
@@ -32,10 +32,10 @@ if __name__ == '__main__':
 				output = sys.argv[index][2:]
 		elif sys.argv[index][0:2] == "-s":
 			if len(sys.argv[index]) == 2 and index+1 < len(sys.argv):
-				sam_file = sys.argv[index + 1]
+				sam_dir = sys.argv[index + 1]
 				index += 1
 			else:
-				sam_file = sys.argv[index][2:]
+				sam_dir = sys.argv[index][2:]
 		elif sys.argv[index][0:2] == "-c":
 				clear = True
 		else:
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
 		index += 1
 
-	if output is not None and sam_file is not None and not failed:
+	if output is not None and sam_dir is not None and not failed:
 		if not clear and os.path.exists(output):
 			print("Failed: path {} already exists and overwrite is not set..".format(output))
 		else:
@@ -62,6 +62,7 @@ if __name__ == '__main__':
 				else:
 					shutil.rmtree(output)
 
+			sam_file = os.path.join(sam_dir, "template.yaml")
 			ingester = IngestSAMYAML(sam_file)
 
 			if ingester.isValid():
@@ -78,10 +79,10 @@ if __name__ == '__main__':
 
 				# generate functions
 				ingester.outputFunctions(os.path.join(output, "apps", "lambdas"))
+				ingester.copyFunctions(sam_dir, os.path.join(output, "apps", "lambdas"))
 
 				# copy flask application - that includes the s3 mock.
 				shutil.copytree("mock_framework", os.path.join(output, "apps", "mock_framework"))
 	else:
 		print("Usage: build_mock -o <out_dir> -s <sam_input_file>")
-
 
