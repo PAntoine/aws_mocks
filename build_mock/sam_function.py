@@ -135,7 +135,7 @@ class SAMFunction:
 		print(self.name)
 
 		for path in self.paths:
-			result.append(f"@app.route('{path}'), methods=[{self.paths[path].getMethods()}])\n")
+			result.append(f"@app.route('{path}', methods=[{self.paths[path].getMethods()}])\n")
 			result.append(f"def {self.paths[path].getEvent()}({self.paths[path].getParameters()}):\n")
 
 			result.append("\treq_data = {\"httpMethod\": request.method}\n")
@@ -145,7 +145,7 @@ class SAMFunction:
 			result.append(f"\treq_data['pathParameters'] = {{{self.paths[path].getParameterPairs()}}}\n")
 
 			result.append(f"\tres = requests.post('http://{self.name}:8080/2015-03-31/functions/function/invocations', data=json.dumps(req_data))\n")
-			result.append("\treturn Response(res.content, status=request.status)\n")
+			result.append("\treturn Response(res.content, status=res.status_code)\n")
 			result.append("\n")
 
 		return result
@@ -171,7 +171,7 @@ class SAMFunction:
 			for item in self.environment:
 				result += "ENV " + item + "=\"" + self.environment[item] + "\"\n"
 
-			result += "ENV S3_TEST_ENDPOINT=\"http://flask:8080\"\n"
+			result += "ENV S3_TEST_ENDPOINT=\"http://flask:8080/buckets\"\n"
 			result += "ENV DB_TEST_ENDPOINT=\"http://dynamodb-local:8000\"\n"
 			result += "CMD [ \"" + self.entry_point + "\" ]\n"
 

@@ -54,10 +54,10 @@ def makeHeaders(headers_dict: {} ) -> Headers:
 
     for item in headers_dict:
         result.add(item, headers_dict[item])
-        
+
     return result
 
-@s3_urls.route("/<string:bucket_name>")
+@s3_urls.route("/buckets/<string:bucket_name>")
 def bucket_commands(bucket_name:str):
     global request_id
 
@@ -70,7 +70,7 @@ def bucket_commands(bucket_name:str):
 
     bucket = bucket_manager.getBucket(bucket_name)
 
-    if bucket_name is not None:
+    if bucket is not None:
         request_id += 1
 
         headers = makeHeaders(bucket.getStatus())
@@ -80,7 +80,7 @@ def bucket_commands(bucket_name:str):
         headers.add('x-amz-request-id', s3_mock.s3_utils.makeShortHash("hash:" + str(request_id)))
 
         resp_data = list_bucket_header.format(name=bucket_name)
-        
+
         for item in bucket.listObjects():
             current_app.logger.warning(item)
             resp_data += list_bucket_item.format(**item)
@@ -91,12 +91,12 @@ def bucket_commands(bucket_name:str):
 
     return Response(resp_data, status=status_value, headers=headers, mimetype='application/json')
 
-@s3_urls.route("/<string:bucket_name>/<string:item>", methods=['GET'])
+@s3_urls.route("/buckets/<string:bucket_name>/<string:item>", methods=['GET'])
 def item_fetch(bucket_name:str, item:str):
     global request_id
-    
+
     current_app.logger.warning("PUT: " + bucket_name + " " + item)
-        
+
     headers = None
     resp_data = ''
     status_value = 503
@@ -114,7 +114,7 @@ def item_fetch(bucket_name:str, item:str):
         headers.add('x-amz-request-id', s3_mock.s3_utils.makeShortHash("hash:" + str(request_id)))
 
         s3_obj = bucket.getObject(item)
- 
+
         headers.add('Last-Modified',    s3_obj.date)
         headers.add('ETag',             s3_obj.etag)
         headers.add('Content-Length',   50) #len(s3_obj.data))
@@ -127,10 +127,10 @@ def item_fetch(bucket_name:str, item:str):
 
     return Response(resp_data, status=status_value, headers=headers, mimetype='application/json')
 
-@s3_urls.route("/<string:bucket_name>/<string:item>", methods=['PUT'])
+@s3_urls.route("/buckets/<string:bucket_name>/<string:item>", methods=['PUT'])
 def item_put(bucket_name:str, item:str):
     global request_id
-        
+
     headers = None
     resp_data = ''
     status_value = 503
@@ -153,7 +153,7 @@ def item_put(bucket_name:str, item:str):
         current_app.logger.warning(request.data)
 
         etag = bucket.addObject(item, data=request.data)
-        
+
         if etag is not None:
             headers.add('ETag', etag)
             status_value = 200
