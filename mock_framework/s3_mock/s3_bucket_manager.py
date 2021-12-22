@@ -6,7 +6,7 @@
 #         It's not doing anything clever just holding a list of buckets and
 #         the files that are in the buckets.
 #
-# Author: 
+# Author:
 # Date  : 29/10/2021
 #
 #                     Copyright (c) 2021 Peter Antoine
@@ -30,11 +30,11 @@ class S3BucketManager:
         self.load()
 
     def addBucket(self, bucket_name:str) -> bool:
-        result = False    
-    
+        result = False
+
         if bucket_name not in self.buckets:
             new_bucket = S3Bucket(bucket_name)
-            
+
             self.buckets[bucket_name] = new_bucket
             self.export()
 
@@ -44,7 +44,7 @@ class S3BucketManager:
 
     def getBucket(self, bucket:str) -> Optional[S3Bucket]:
         """ Return the bucket if it exists. """
-        
+
         if bucket in self.buckets:
             return self.buckets[bucket]
         else:

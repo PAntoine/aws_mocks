@@ -11,6 +11,8 @@
 #                            All rights Reserved.
 #                    Released Under the Artistic Licence
 
+import random
+
 class SAMSimpleTable:
     __slots__ = ["key", "table_name", "name", "key_type"]
 
@@ -18,7 +20,9 @@ class SAMSimpleTable:
         self.name = name        # type : str
         self.key = None         # type : str
         self.key_type = None    # type : str
-        self.table_name = None  # type : str
+
+        # default name is a randomly generated.
+        self.table_name = name + "_" + str(hash(random.getrandbits(32)))
 
     def addPrimaryKey(self, name:str, key_type: str) -> None:
         """ Add the primary key to the table object """

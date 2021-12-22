@@ -82,7 +82,14 @@ if __name__ == '__main__':
 				ingester.copyFunctions(sam_dir, os.path.join(output, "apps", "lambdas"))
 
 				# copy flask application - that includes the s3 mock.
-				shutil.copytree("mock_framework", os.path.join(output, "apps", "mock_framework"))
+				(root, _) = os.path.split(os.path.dirname(__file__))
+				shutil.copytree(os.path.join(root, "mock_framework"), os.path.join(output, "apps", "mock_framework"), dirs_exist_ok=True)
+
+				# now create the flask app that does the re-directing.
+				ingester.generateFlaskApp(os.path.join(output, "apps", "mock_framework", "app.py"))
+
+			else:
+				print("Not valid")
 	else:
 		print("Usage: build_mock -o <out_dir> -s <sam_input_file>")
 
